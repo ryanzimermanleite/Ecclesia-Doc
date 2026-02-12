@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manual do Usuário — Robô Ecclesia</title>
+  <meta name="description" content="Documentação completa do Robô Ecclesia — automação de lançamentos financeiros no sistema Ecclesia." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ───── Reset & Base ───── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold:    #E8B20E;
+      --gold-light: #f5d44b;
+      --gold-dark:  #b8920a;
+      --black:   #0a0a0a;
+      --black-light: #1a1a1a;
+      --white:   #ffffff;
+      --gray-100: #f5f5f5;
+      --gray-200: #e5e5e5;
+      --gray-400: #a3a3a3;
+      --gray-600: #525252;
+      --gray-800: #262626;
+      --radius:  16px;
+      --transition: .35s cubic-bezier(.4,0,.2,1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--black);
+      color: var(--gray-200);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ───── Ambient Background ───── */
+    .ambient {
+      position: fixed; inset: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+    .ambient::before,
+    .ambient::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: .18;
+      animation: float 18s ease-in-out infinite alternate;
+    }
+    .ambient::before {
+      width: 600px; height: 600px;
+      background: var(--gold);
+      top: -100px; left: -100px;
+    }
+    .ambient::after {
+      width: 500px; height: 500px;
+      background: var(--gold-light);
+      bottom: -80px; right: -80px;
+      animation-delay: -9s;
+    }
+
+    @keyframes float {
+      0%   { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(60px, 40px) scale(1.15); }
+    }
+
+    /* ───── Particles (CSS only) ───── */
+    .particles {
+      position: fixed; inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+    .particles span {
+      position: absolute;
+      background: var(--gold);
+      border-radius: 50%;
+      opacity: 0;
+      box-shadow: 0 0 6px 2px rgba(232,178,14,.4);
+    }
+    /* Small particles */
+    .particles span.sm { width: 3px; height: 3px; }
+    /* Medium particles */
+    .particles span.md { width: 5px; height: 5px; box-shadow: 0 0 10px 3px rgba(232,178,14,.5); }
+    /* Large particles */
+    .particles span.lg { width: 7px; height: 7px; box-shadow: 0 0 14px 4px rgba(232,178,14,.45); }
+
+    .particles span:nth-child(1)  { left:3%;  animation: sparkle1 5s linear infinite 0s; }
+    .particles span:nth-child(2)  { left:10%; animation: sparkle2 7s linear infinite .4s; }
+    .particles span:nth-child(3)  { left:17%; animation: sparkle1 6s linear infinite 1s; }
+    .particles span:nth-child(4)  { left:24%; animation: sparkle3 8s linear infinite 1.5s; }
+    .particles span:nth-child(5)  { left:30%; animation: sparkle2 5.5s linear infinite 2s; }
+    .particles span:nth-child(6)  { left:37%; animation: sparkle1 7.5s linear infinite .8s; }
+    .particles span:nth-child(7)  { left:44%; animation: sparkle3 6s linear infinite 2.5s; }
+    .particles span:nth-child(8)  { left:50%; animation: sparkle2 5s linear infinite 3s; }
+    .particles span:nth-child(9)  { left:56%; animation: sparkle1 8s linear infinite 1.2s; }
+    .particles span:nth-child(10) { left:62%; animation: sparkle3 6.5s linear infinite 3.5s; }
+    .particles span:nth-child(11) { left:68%; animation: sparkle2 7s linear infinite .6s; }
+    .particles span:nth-child(12) { left:74%; animation: sparkle1 5.5s linear infinite 4s; }
+    .particles span:nth-child(13) { left:80%; animation: sparkle3 6s linear infinite 2.2s; }
+    .particles span:nth-child(14) { left:86%; animation: sparkle2 7.5s linear infinite 4.5s; }
+    .particles span:nth-child(15) { left:92%; animation: sparkle1 5s linear infinite 1.8s; }
+    .particles span:nth-child(16) { left:7%;  animation: sparkle3 6.5s linear infinite 3.2s; }
+    .particles span:nth-child(17) { left:21%; animation: sparkle1 8s linear infinite 0.3s; }
+    .particles span:nth-child(18) { left:47%; animation: sparkle2 5.5s linear infinite 2.8s; }
+    .particles span:nth-child(19) { left:65%; animation: sparkle3 7s linear infinite 1.6s; }
+    .particles span:nth-child(20) { left:97%; animation: sparkle1 6s linear infinite 4.2s; }
+
+    @keyframes sparkle1 {
+      0%   { transform: translateY(100vh) translateX(0) scale(0); opacity: 0; }
+      8%   { opacity: .7; }
+      50%  { transform: translateY(50vh) translateX(15px) scale(1); opacity: .5; }
+      90%  { opacity: .7; }
+      100% { transform: translateY(-10vh) translateX(-10px) scale(.8); opacity: 0; }
+    }
+    @keyframes sparkle2 {
+      0%   { transform: translateY(100vh) translateX(0) scale(0); opacity: 0; }
+      8%   { opacity: .6; }
+      50%  { transform: translateY(50vh) translateX(-20px) scale(1.1); opacity: .4; }
+      90%  { opacity: .6; }
+      100% { transform: translateY(-10vh) translateX(12px) scale(.6); opacity: 0; }
+    }
+    @keyframes sparkle3 {
+      0%   { transform: translateY(100vh) translateX(0) scale(0); opacity: 0; }
+      8%   { opacity: .8; }
+      35%  { transform: translateY(65vh) translateX(10px) scale(1); }
+      65%  { transform: translateY(35vh) translateX(-15px) scale(.9); }
+      90%  { opacity: .8; }
+      100% { transform: translateY(-10vh) translateX(5px) scale(.7); opacity: 0; }
+    }
+
+    /* ───── Mouse Trail ───── */
+    .trail-dot {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      width: 8px; height: 8px;
+      background: var(--gold);
+      border-radius: 50%;
+      box-shadow: 0 0 12px 4px rgba(232,178,14,.6), 0 0 24px 8px rgba(232,178,14,.25);
+      opacity: 0;
+      transition: opacity .15s;
+      mix-blend-mode: screen;
+    }
+
+    /* ───── Header / Hero ───── */
+    header {
+      position: relative;
+      text-align: center;
+      padding: 100px 20px 60px;
+      background: linear-gradient(180deg, rgba(232,178,14,.12) 0%, transparent 70%);
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 200px; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(232,178,14,.15);
+      border: 1px solid rgba(232,178,14,.35);
+      color: var(--gold-light);
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 18px;
+      border-radius: 999px;
+      margin-bottom: 24px;
+      animation: fadeDown .8s ease-out both;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 900;
+      color: var(--white);
+      letter-spacing: -1px;
+      animation: fadeDown .8s ease-out .15s both;
+    }
+    h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    header p.subtitle {
+      max-width: 600px;
+      margin: 16px auto 0;
+      font-size: 1.05rem;
+      color: var(--gray-400);
+      animation: fadeDown .8s ease-out .3s both;
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ───── Navigation (sticky) ───── */
+    nav {
+      position: sticky; top: 0;
+      z-index: 100;
+      background: rgba(10,10,10,.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(232,178,14,.12);
+      padding: 0 20px;
+    }
+    nav ul {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      list-style: none;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 10px 0;
+    }
+    nav a {
+      display: block;
+      padding: 8px 18px;
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--gray-400);
+      text-decoration: none;
+      border-radius: 10px;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+    nav a:hover, nav a.active {
+      color: var(--black);
+      background: var(--gold);
+    }
+
+    /* ───── Main container ───── */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px 100px;
+    }
+
+    /* ───── Section Titles ───── */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 64px 0 28px;
+    }
+    .section-title .icon {
+      flex-shrink: 0;
+      width: 48px; height: 48px;
+      display: grid; place-items: center;
+      font-size: 1.3rem;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: var(--black);
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(232,178,14,.25);
+    }
+    .section-title h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--white);
+    }
+
+    /* ───── Glass Cards ───── */
+    .card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding: 28px 30px;
+      margin-bottom: 20px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      opacity: 0;
+      transition: var(--transition);
+    }
+    .card:hover {
+      background: rgba(255,255,255,.07);
+      border-color: rgba(232,178,14,.2);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+    }
+    .card:hover::before { opacity: 1; }
+
+    .card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--gold-light);
+      margin-bottom: 10px;
+    }
+    .card p, .card li {
+      color: var(--gray-200);
+      font-size: .93rem;
+    }
+    .card ul, .card ol {
+      padding-left: 22px;
+      margin-top: 8px;
+    }
+    .card li { margin-bottom: 6px; }
+    .card li::marker { color: var(--gold); }
+
+    /* ───── Floating Bar Preview ───── */
+    .floating-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin: 30px auto;
+      width: fit-content;
+    }
+    .floating-bar .btn {
+      width: 56px; height: 56px;
+      display: grid; place-items: center;
+      font-size: 1.3rem;
+      font-weight: 800;
+      border: none;
+      border-radius: 14px;
+      cursor: default;
+      color: var(--white);
+      transition: var(--transition);
+      position: relative;
+    }
+    .btn-r  { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+    .btn-d  { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+    .btn-a  { background: linear-gradient(135deg, var(--gold-dark), var(--gold-light)); color: var(--black) !important; }
+    .btn-x  { background: linear-gradient(135deg, #ef4444, #f87171); }
+
+    .floating-bar .btn:hover {
+      transform: scale(1.12);
+      box-shadow: 0 6px 24px rgba(0,0,0,.35);
+    }
+
+    .btn-label {
+      font-size: .7rem;
+      font-weight: 600;
+      color: var(--gray-400);
+      text-align: center;
+      margin-top: -4px;
+    }
+
+    /* ───── Table ───── */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.08);
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+    }
+    thead {
+      background: linear-gradient(90deg, rgba(232,178,14,.18), rgba(232,178,14,.06));
+    }
+    th {
+      padding: 14px 16px;
+      text-align: left;
+      font-weight: 700;
+      color: var(--gold-light);
+      white-space: nowrap;
+    }
+    td {
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      color: var(--gray-200);
+    }
+    tbody tr { transition: var(--transition); }
+    tbody tr:hover { background: rgba(232,178,14,.06); }
+
+    /* ───── Steps List ───── */
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      padding: 0;
+    }
+    .steps li {
+      counter-increment: step;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      font-size: .95rem;
+    }
+    .steps li:last-child { border-bottom: none; }
+    .steps li::before {
+      content: counter(step);
+      flex-shrink: 0;
+      width: 34px; height: 34px;
+      display: grid; place-items: center;
+      font-weight: 800;
+      font-size: .85rem;
+      color: var(--black);
+      background: var(--gold);
+      border-radius: 10px;
+    }
+
+    /* ───── Warning / Note ───── */
+    .note {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: rgba(232,178,14,.08);
+      border-left: 4px solid var(--gold);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 20px 24px;
+      margin: 20px 0;
+    }
+    .note .note-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .note ul {
+      padding-left: 20px;
+      margin-top: 8px;
+    }
+    .note li { margin-bottom: 6px; font-size: .9rem; }
+
+    /* ───── Reports Badge List ───── */
+    .file-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      list-style: none;
+      padding: 0;
+      margin-top: 12px;
+    }
+    .file-list li {
+      background: rgba(232,178,14,.1);
+      border: 1px solid rgba(232,178,14,.25);
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--gold-light);
+      transition: var(--transition);
+    }
+    .file-list li:hover {
+      background: rgba(232,178,14,.2);
+      transform: translateY(-2px);
+    }
+
+    /* ───── Path Cards ───── */
+    .path-grid {
+      display: grid;
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .path-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding: 22px 26px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .path-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: var(--gold);
+      border-radius: 4px 0 0 4px;
+    }
+    .path-card:hover {
+      background: rgba(255,255,255,.07);
+      border-color: rgba(232,178,14,.2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,0,0,.3);
+    }
+    .path-card .path-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--gold-light);
+      margin-bottom: 8px;
+    }
+    .path-card .path-value {
+      font-family: 'Courier New', monospace;
+      font-size: .82rem;
+      color: var(--gray-200);
+      background: rgba(0,0,0,.35);
+      padding: 10px 14px;
+      border-radius: 8px;
+      word-break: break-all;
+      user-select: all;
+      cursor: text;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+
+    /* ───── Footer ───── */
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      color: var(--gray-600);
+      font-size: .82rem;
+    }
+    footer strong {
+      color: var(--gold);
+    }
+
+    /* ───── Scroll Reveal ───── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .7s ease-out, transform .7s ease-out;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ───── Scrollbar ───── */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(232,178,14,.3);
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(232,178,14,.5); }
+
+    /* ───── Responsive ───── */
+    @media (max-width: 640px) {
+      header { padding: 70px 16px 40px; }
+      .card { padding: 20px; }
+      .section-title { margin-top: 48px; }
+      nav a { padding: 8px 12px; font-size: .78rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient light blobs -->
+  <div class="ambient"></div>
+
+  <!-- Particle layer -->
+  <div class="particles">
+    <span class="sm"></span><span class="md"></span><span class="sm"></span><span class="lg"></span>
+    <span class="md"></span><span class="sm"></span><span class="lg"></span><span class="sm"></span>
+    <span class="md"></span><span class="sm"></span><span class="lg"></span><span class="md"></span>
+    <span class="sm"></span><span class="md"></span><span class="sm"></span><span class="lg"></span>
+    <span class="md"></span><span class="sm"></span><span class="lg"></span><span class="md"></span>
+  </div>
+
+  <!-- ═══════ HEADER ═══════ -->
+  <header>
+    <span class="badge">Documentação Oficial</span>
+    <h1>Robô <em>Ecclesia</em></h1>
+    <p class="subtitle">Automação de lançamentos financeiros — Receitas, Despesas e modo Automático.</p>
+  </header>
+
+  <!-- ═══════ NAV ═══════ -->
+  <nav>
+    <ul>
+      <li><a href="#o-que-faz">O que faz</a></li>
+      <li><a href="#botoes">Botões</a></li>
+      <li><a href="#planilha-despesas">Planilha Despesas</a></li>
+      <li><a href="#planilha-receitas">Planilha Receitas</a></li>
+      <li><a href="#passo-a-passo">Passo a passo</a></li>
+      <li><a href="#relatorios">Relatórios</a></li>
+      <li><a href="#caminhos">Caminhos</a></li>
+      <li><a href="#observacoes">Observações</a></li>
+    </ul>
+  </nav>
+
+  <!-- ═══════ MAIN ═══════ -->
+  <main>
+
+    <!-- ── O que o robô faz ── -->
+    <div id="o-que-faz" class="section-title reveal">
+      <div class="icon">⚙️</div>
+      <h2>O que o robô faz</h2>
+    </div>
+
+    <div class="card reveal">
+      <h3>Receitas (R)</h3>
+      <p>Lê a aba <strong>RECEITAS</strong> da planilha e localiza o lançamento no sistema por:</p>
+      <ul>
+        <li>Data</li>
+        <li>Valor</li>
+        <li>Referência</li>
+      </ul>
+      <p style="margin-top:10px;">Em seguida, realiza o lançamento com <strong>plano de contas</strong> e <strong>forma de recebimento</strong>.</p>
+    </div>
+
+    <div class="card reveal">
+      <h3>Despesas (D)</h3>
+      <p>Lê a aba <strong>DESPESAS</strong> da planilha e localiza o lançamento por:</p>
+      <ul>
+        <li>Data</li>
+        <li>Valor</li>
+      </ul>
+      <p style="margin-top:10px;">Lança automaticamente com: <strong>Descrição</strong>, <strong>Plano de contas</strong>, <strong>Forma de pagamento</strong>, <strong>Documento</strong>, <strong>Nota</strong> e <strong>CPF/CNPJ</strong>.</p>
+    </div>
+
+    <div class="card reveal">
+      <h3>Automático (A)</h3>
+      <p><strong>Não usa planilha.</strong> Percorre os lançamentos restantes e trata padrões já mapeados, como:</p>
+      <ul>
+        <li>Energia (CPFL)</li>
+        <li>Água (SANASA / DAE)</li>
+        <li>Tarifas bancárias</li>
+        <li>Aplicações e resgates</li>
+        <li>Transferências internas</li>
+      </ul>
+    </div>
+
+    <!-- ── Botões da Barra Flutuante ── -->
+    <div id="botoes" class="section-title reveal">
+      <div class="icon">🖱️</div>
+      <h2>Botões da Barra Flutuante</h2>
+    </div>
+
+    <div class="card reveal" style="text-align:center;">
+      <div class="floating-bar">
+        <div>
+          <div class="btn btn-r">R</div>
+          <div class="btn-label">Receitas</div>
+        </div>
+        <div>
+          <div class="btn btn-d">D</div>
+          <div class="btn-label">Despesas</div>
+        </div>
+        <div>
+          <div class="btn btn-a">A</div>
+          <div class="btn-label">Automático</div>
+        </div>
+        <div>
+          <div class="btn btn-x">X</div>
+          <div class="btn-label">Sair</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <ul>
+        <li><strong>R — Receitas:</strong> Seleciona a planilha e processa a aba RECEITAS.</li>
+        <li><strong>D — Despesas:</strong> Seleciona a planilha e processa a aba DESPESAS.</li>
+        <li><strong>A — Automático:</strong> Executa sem planilha. Solicita qual paróquia será processada.</li>
+        <li><strong>X — Sair:</strong> Fecha o robô.</li>
+      </ul>
+    </div>
+
+    <div class="note reveal">
+      <div class="note-icon">🔒</div>
+      <div>
+        <strong>Durante o processamento</strong> os botões ficam bloqueados para evitar execução dupla.
+      </div>
+    </div>
+
+    <!-- ── Planilha Despesas ── -->
+    <div id="planilha-despesas" class="section-title reveal">
+      <div class="icon">📋</div>
+      <h2>Como montar a planilha — Despesas</h2>
+    </div>
+
+    <p class="reveal" style="margin-bottom:14px; font-size:.93rem; color:var(--gray-400);">
+      Crie uma aba chamada <strong style="color:var(--gold-light);">DESPESAS</strong> com as seguintes colunas obrigatórias:
+    </p>
+
+    <div class="table-wrap reveal">
+      <table>
+        <thead>
+          <tr>
+            <th>Coluna</th>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>DATA</strong></td><td>Data do lançamento (dd/mm/aaaa)</td></tr>
+          <tr><td><strong>VALOR</strong></td><td>Valor numérico</td></tr>
+          <tr><td><strong>DESCRIÇÃO</strong></td><td>Texto do lançamento</td></tr>
+          <tr><td><strong>PAGAMENTO</strong></td><td>Forma (D, Boleto, Transf, etc.)</td></tr>
+          <tr><td><strong>TIPO</strong></td><td>Tipo do documento (NFS, EXTRATO…)</td></tr>
+          <tr><td><strong>NOTA</strong></td><td>Número da nota (quando houver)</td></tr>
+          <tr><td><strong>CNPJ</strong></td><td>CPF/CNPJ do fornecedor</td></tr>
+          <tr><td><strong>FORNECEDOR</strong></td><td>Nome / Razão social</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note reveal">
+      <div class="note-icon">🔍</div>
+      <div>
+        <strong>Regra de busca no sistema:</strong> DATA + VALOR
+      </div>
+    </div>
+
+    <!-- ── Planilha Receitas ── -->
+    <div id="planilha-receitas" class="section-title reveal">
+      <div class="icon">📋</div>
+      <h2>Como montar a planilha — Receitas</h2>
+    </div>
+
+    <p class="reveal" style="margin-bottom:14px; font-size:.93rem; color:var(--gray-400);">
+      Crie uma aba chamada <strong style="color:var(--gold-light);">RECEITAS</strong> com as seguintes colunas obrigatórias:
+    </p>
+
+    <div class="table-wrap reveal">
+      <table>
+        <thead>
+          <tr>
+            <th>Coluna</th>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>DATA</strong></td><td>Data do recebimento</td></tr>
+          <tr><td><strong>VALOR</strong></td><td>Valor numérico</td></tr>
+          <tr><td><strong>REFERÊNCIA</strong></td><td>Texto igual ao sistema</td></tr>
+          <tr><td><strong>DESCRIÇÃO</strong></td><td>Plano de contas</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note reveal">
+      <div class="note-icon">🔍</div>
+      <div>
+        <strong>Regra de busca no sistema:</strong> DATA + VALOR + REFERÊNCIA
+      </div>
+    </div>
+
+    <!-- ── Passo a passo ── -->
+    <div id="passo-a-passo" class="section-title reveal">
+      <div class="icon">🚀</div>
+      <h2>Como usar — Passo a passo</h2>
+    </div>
+
+    <div class="card reveal">
+      <ol class="steps">
+        <li>Abra o <strong>Ecclesia</strong> na tela de lançamentos / conciliação.</li>
+        <li>Clique em <strong>R</strong>, <strong>D</strong> ou <strong>A</strong> na barra flutuante.</li>
+        <li>Se <strong>R</strong> ou <strong>D</strong> → selecione a planilha. Se <strong>A</strong> → modo automático, <strong>não precisa de planilha</strong>.</li>
+        <li><strong>Não utilize</strong> mouse ou teclado durante a execução.</li>
+        <li>Aguarde o término do processamento.</li>
+      </ol>
+    </div>
+
+    <!-- ── Relatórios ── -->
+    <div id="relatorios" class="section-title reveal">
+      <div class="icon">📊</div>
+      <h2>Relatórios gerados</h2>
+    </div>
+
+    <div class="card reveal">
+      <p>O robô cria arquivos Excel com o resultado de cada execução:</p>
+      <ul class="file-list">
+        <li>📄 Resultado Ecclesia Despesas.xlsx</li>
+        <li>📄 Resultado Ecclesia Receitas.xlsx</li>
+        <li>📄 Resultado Ecclesia Automatico &lt;IGREJA&gt;.xlsx</li>
+      </ul>
+      <p style="margin-top:16px;">Cada relatório contém:</p>
+      <ul>
+        <li>Dados do lançamento</li>
+        <li>Status (<strong>Sucesso</strong> ou motivo de cancelamento)</li>
+      </ul>
+    </div>
+
+    <!-- ── Caminhos ── -->
+    <div id="caminhos" class="section-title reveal">
+      <div class="icon">📂</div>
+      <h2>Caminhos dos Arquivos</h2>
+    </div>
+
+    <div class="path-grid reveal">
+      <div class="path-card">
+        <div class="path-label">📄 Planilhas Padrão</div>
+        <div class="path-value">T:\# Projeto Robô\Gustavo Silva\Ecclesia\PLANILHA PADRAO</div>
+      </div>
+      <div class="path-card">
+        <div class="path-label">⛪ Anexos / Notas Fiscais — SANTANA</div>
+        <div class="path-value">T:\# Projeto Robô\Gustavo Silva\Ecclesia\SANTANA\NOTAS FISCAIS</div>
+      </div>
+      <div class="path-card">
+        <div class="path-label">⛪ Anexos / Notas Fiscais — SANTA INÊS</div>
+        <div class="path-value">T:\# Projeto Robô\Gustavo Silva\Ecclesia\SANTA INES\NOTAS FISCAIS</div>
+      </div>
+      <div class="path-card">
+        <div class="path-label">📊 Resultados</div>
+        <div class="path-value">T:\# Projeto Robô\Gustavo Silva\Ecclesia</div>
+      </div>
+    </div>
+
+    <!-- ── Observações ── -->
+    <div id="observacoes" class="section-title reveal">
+      <div class="icon">⚠️</div>
+      <h2>Observações importantes</h2>
+    </div>
+
+    <div class="note reveal" style="flex-direction:column; gap:10px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="note-icon">⚠️</span>
+        <strong style="color:var(--gold-light);">Atenção antes de executar</strong>
+      </div>
+      <ul>
+        <li>O sistema <strong>Ecclesia deve estar aberto</strong>.</li>
+        <li>As telas precisam estar <strong>visíveis</strong>.</li>
+        <li>As imagens de referência do robô devem estar <strong>corretas</strong>.</li>
+        <li>Notas fiscais (<strong>NFS</strong>) exigem número e anexo válido.</li>
+        <li><strong>Não utilize</strong> mouse ou teclado durante o processamento.</li>
+      </ul>
+    </div>
+
+  </main>
+
+  <!-- ═══════ FOOTER ═══════ -->
+  <footer>
+    <p>Desenvolvido por <strong>Ryan Zimerman Leite</strong> — DCA</p>
+    <p style="margin-top:6px; opacity:.5;">Robô Ecclesia &copy; 2026</p>
+  </footer>
+
+  <!-- ═══════ SCROLL REVEAL JS ═══════ -->
+  <script>
+    // Intersection Observer for reveal animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Active nav link highlight
+    const sections = document.querySelectorAll('[id]');
+    const navLinks = document.querySelectorAll('nav a');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(sec => {
+        const top = sec.getBoundingClientRect().top;
+        if (top < 180) current = sec.getAttribute('id');
+      });
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+          link.classList.add('active');
+        }
+      });
+    });
+
+    // ───── Mouse Trail Effect ─────
+    const TRAIL_COUNT = 14;
+    const trailDots = [];
+    for (let i = 0; i < TRAIL_COUNT; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'trail-dot';
+      dot.style.width  = (8 - i * 0.4) + 'px';
+      dot.style.height = (8 - i * 0.4) + 'px';
+      dot.style.opacity = 0;
+      document.body.appendChild(dot);
+      trailDots.push({ el: dot, x: 0, y: 0 });
+    }
+
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener('mousemove', e => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    function animateTrail() {
+      let prevX = mouseX, prevY = mouseY;
+      trailDots.forEach((dot, i) => {
+        const speed = 0.35 - i * 0.015;
+        dot.x += (prevX - dot.x) * speed;
+        dot.y += (prevY - dot.y) * speed;
+        dot.el.style.left = dot.x + 'px';
+        dot.el.style.top  = dot.y + 'px';
+        dot.el.style.opacity = 1 - (i / TRAIL_COUNT);
+        dot.el.style.transform = 'translate(-50%,-50%) scale(' + (1 - i * 0.05) + ')';
+        prevX = dot.x;
+        prevY = dot.y;
+      });
+      requestAnimationFrame(animateTrail);
+    }
+    animateTrail();
+  </script>
+</body>
+</html>
